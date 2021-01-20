@@ -7,3 +7,6 @@
   ['Lisa', 'female', 24],
   ['Jason', 'male', 30],
 ] */
+
+let user:[string , number] = ['viking',20]
+user.push(30)

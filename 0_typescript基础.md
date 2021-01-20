@@ -23,8 +23,8 @@ sudo npm install -g ts-node
 ### 2.1 ts 类型有哪些
 
 - 基础类型有：boolean， number，string，void，undefined，symbol，null
-
 - 对象类型：object，class，function，array
+- 任意类型：any
 
 ```ts
 // 基础类型
@@ -170,7 +170,7 @@ const teacherArr:Teacher[] = [
 
 - **元组** tuple： 元组类型允许表示一个**已知元素数量和类型**的数组，各元素的类型不必相同.
 
-* 元组可以更加准确地约束数组。
+* 元组可以更加**准确地约束数组**。
 
 ```ts
 const teacherInfo: [string, string, number] = ['Dell', 'male', 19]
@@ -180,13 +180,17 @@ const teacherList: [string, string, number][] = [
   ['Lisa', 'female', 24],
   ['Jason', 'male', 30],
 ]
+// 可以使用数组的方法添加符合限制类型的元素
+let user:[string , number] = ['viking',20]
+user.push(30)
+console.log(user)// ['viking',20,30]
 ```
 
 ### 2.5 枚举 enum
 
 - **枚举**的作用是列举类型中包含的各个值。是一种**无序**数据结构。
 
-* 使用**枚举**可以定义一些带名字的常量。使用枚举可以清晰地表达意图或创建一组有区别的用例。 TypeScript 支持数字的和基于字符串的枚举。
+* 使用**枚举**可以定义一些带名字的常量。使用枚举可以**清晰地表达意图或创建一组有区别的用例**。 TypeScript 支持数字的和基于字符串的枚举。
 
 - 枚举支持**反向取值**。
 
@@ -212,6 +216,8 @@ const result = getResult(Status.OFFLINE)
 console.log(result)
 
 console.log(Status.OFFLINE) //0
+
+// 反向取值
 console.log(Status[0]) //OFFLINE
 ```
 
@@ -245,17 +251,32 @@ enum Direction {
 - 在一个字符串枚举里，每个成员都必须用字符串字面量，或另外一个字符串枚举成员进行初始化。
 - 由于字符串枚举没有自增长的行为，字符串枚举可以很好的序列化。
 
-####
+#### 2.5.3 常量枚举
+
+```ts
+const enum  Direction {
+	Up='UP',
+	Down='DOWN',
+	Left='Left',
+	Right='Right',
+}
+const value = 'UP'
+// 调用枚举，不会把枚举编译成js代码。可提升性能
+if(value===Direction.Up){  // 编译成 if(value==='UP')
+	console.log('go up!')
+}
+```
 
 ## 3. 接口 interface
 
-- **接口**可以给类型化的结构命名，它可以用来定义一种通用类型，来限制对象和函数。
+- **接口**可以给类型化的结构命名 ( 用来描述对象），它可以用来定义一种通用类型，来限制**对象**和**函数**。
 
 * 注意接口里面的不同的键值对结构使用分号;隔开。
 
 ### 3.1 interface 和 type 的区别
 
 - interface 和 type 类似，但并不完全一致。
+  
   > type 可以用来代表基础类型数据和对象，但是 interface 不能用来代表基础数据类型。
 
 ### 3.2 interface 的使用
@@ -317,7 +338,7 @@ interface Person {
 
 ### 3.5 规范引用对象和规范对象字面量的区别
 
-- interface 规范引用对象时，引用对象的额外属性可以存在。也就是说规范过程是**弱校验**。
+- interface 规范**引用对象**时，引用对象的额外属性可以存在。也就是说规范过程是**弱校验**。
 
 ```ts
 interface Person {
@@ -327,6 +348,7 @@ interface Person {
 const setPersonName = (person: Person, name: string): void => {
   person.name = name
 }
+// 要规范的引用对象
 const person = {
   name: 'Bob',
   age: '15',
@@ -337,7 +359,7 @@ setPersonName(person, 'Ted')
 // person 被引用，gender可以存在
 ```
 
-- interface 规范对象字面量，对象字面量的结构要严格和接口保持一致。也就是说规范对象字面量的过程是**强校验** 。
+- interface 规范**对象字面量**，对象字面量的结构要严格和接口保持一致。也就是说规范对象字面量的过程是**强校验** 。
 
 ```ts
 interface Person {
@@ -349,6 +371,7 @@ const setPersonName = (person: Person, name: string): void => {
   console.log(person.name)
 }
 setPersonName(
+  // 对象字面量
   {
     name: 'Bob',
     age: 15,
@@ -442,6 +465,7 @@ getTeacherWords(teacher1) // Hello Teach
 - interface 还可以用来限制规范**函数的类型**
 
 ```ts
+// 注意参数类型和返回值类型之间用冒号隔开
 interface SayHi {
   (word: string): string
 }
@@ -467,8 +491,10 @@ console.log(say2('How Old R U?'))
 * 在 TS 中，类中的所有成员都默认为 public 类。标记为 **public** 的成员，（默认），允许在类的内外被调用。
 
 * 标记为 **private** 的成员，只允许在类内被使用。
+  
   > 习惯上，对于声明了 private 的成员，成员命名时在前面加下划线加以区分。
 * 标记为 **protected** 的成员，只允许在类内及继承的子类中使用。
+  
   > 内指在声明的类中，实例化后使用就是类外。
 
 ```ts
@@ -636,11 +662,11 @@ function trainAnimal(animal: Bird | Dog) {
 
 ### 5.2 类型保护
 
-- TypeScript 能够在特定的区块中保护变量属于某种确定的类型，可以在此区块中放心的引用此类型的属性，或者调用此类型的方法。
+- TypeScript 能够在特定的区块中**保护==变量==属于某种确定的类型**，可以在此区块中放心的引用此类型的属性，或者调用此类型的方法。
 
 #### 实现类型保护的几种方式:
 
-- 1. **类型断言**
+- 1. **类型断言实现类型保护**
 
 ```ts
 interface Bird {
@@ -700,15 +726,41 @@ function addSecond(first: object | NumberObj, second: object | NumberObj) {
 }
 ```
 
-### 5.3 函数泛型
+### 5.3 类型断言
 
-#### 5.3.1 泛型的概念
+> 有时，我们没有足够的时间把所有的类型都规划好，这时，我们希望Typescript能相信我们，即便如此也是安全的。Typescript提供了**类型断言**。
+
+#### 5.3.1 类型断言的使用场景
++ ① 将一个联合类型断言为其中一个类型。
++ ② 将一个父类断言为更加具体的子类。
++ ③ 将任何一个类型断言为any。
++ ④ any可以被断言为任何类型。
+
+#### 5.3.2 类型断言的句法
++ **as关键字**
+```ts
+	function formatInput(input:string){
+		//...
+	}
+	function getUserInput():string|number{
+		//...
+	}
+	let input = getUserInput();
+	// 类型断言：断定input是字符串
+	formatInput(input as string);
+```
+
+### 5.4 函数泛型
+
+#### 5.4.1 泛型的概念
 
 - **泛型**generic 泛指的类型。在类型层面施加约束的占位类型，也称多态类型参数。
 
 - 泛型参数使用尖括号<>声明，尖括号的位置限定泛型的作用域，Typescript 将确保当前作用域中相同的泛型参数最终都绑定同一个具体类型。
 
-#### 5.3.2 函数中的泛型
+#### 5.4.2 函数中的泛型
+
++ 在函数的参数和返回值中使用泛型。
 
 ```ts
 function join1<ABC>(first: ABC, second: ABC) {
@@ -728,9 +780,8 @@ function map2<TT>(params: Array<TT>) {
 map1<string>(['abc', '123'])
 map2<number>([1, 2])
 ```
-
++  指定多个泛型
 ```ts
-// 指定多个泛型
 function join2<T, P>(first: T, second: P) {
   return `${first}${second}`
 }
@@ -738,15 +789,30 @@ function join2<T, P>(first: T, second: P) {
 join2(1, '1')
 ```
 
++ 使用泛型作为类型注解
 ```ts
-// 使用泛型作为类型注解
 function hello<T>(params: T) {
   return params
 }
 const func: <T>(param: T) => T = hello
 ```
 
-#### 5.3.3 类中的泛型
++ extends 关键字给泛型施加约束
+```ts
+interface Length{
+  length:number
+}
+// 泛型T必须有length属性，值为number类型
+function echoWithLength<T extends Length>(arg:T):T{
+  console.log(arg.length)
+  return arg
+}
+const str=echoWithLength('str')
+const obj=echoWithLength({length:3})
+const arr2 =echoWithLength([2,3,4])
+```
+
+#### 5.4.3 类中的泛型
 
 ```ts
 class DataManager<T> {
@@ -755,6 +821,7 @@ class DataManager<T> {
     return this.data[index]
   }
 }
+// 在使用类的时候，把泛型具象化
 const data = new DataManager<string>(['1', 'a'])
 console.log(data.getItem(0))
 ```
@@ -777,7 +844,22 @@ const data = new DataManager([
 ])
 ```
 
-#### 5.3.4 泛型中 keyof 的使用
+#### 5.4.4 接口中使用泛型
+
+```ts
+interface KeyPair<T,U> {
+  key:T
+  value:U
+}
+let kp1:KeyPair<number,string> = {key:1,value:'string'}
+let kp2:KeyPair<string,number> = {key:'str',value:2}
+let arr:number[] = [1,2,3]
+let arrTwo:Array<number> = [1,2,3,4]
+```
+
+
+
+#### 5.4.5 泛型中 keyof 的使用
 
 > 使用 keyof 遍历一个接口
 
@@ -807,7 +889,7 @@ const testName = teacher.getInfo('age')
 console.log(testName)
 ```
 
-### 5.4 命名空间
+### 5.5 命名空间
 
 - Typescript 提供了另一种封装代码的方式，**namespace** 关键字。
 
@@ -920,7 +1002,7 @@ namespace Home {
 }
 ```
 
-### 5.5 import export
+### 5.6 import export
 
 - 在 typesccript 中，应该使用 ES2015 的 import 和 export 句法，实现模块化导入导出。
 
